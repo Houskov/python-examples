@@ -1,9 +1,7 @@
-def nDigitBinary(number, n, depth):
-    if depth == n:
+def nDigitBinary(n, number= "1"):
+    if n == 1:
         print(number)
-    elif depth == 1:
-        nDigitBinary("1", n, depth+1)
     else:        
-        nDigitBinary(number + "0", n, depth+1)
-        nDigitBinary(number + "1", n, depth+1)
-nDigitBinary("", 5, 1)
+        nDigitBinary(n - 1, number + "0")
+        nDigitBinary(n - 1, number + "1")
+nDigitBinary(5)
