@@ -1,6 +1,11 @@
 #kun po sachovnici
 
 class ChessBoardMoves:
+    class MoveWithPriority:
+        def __init__(self, x, y, nextMoves):
+            self.x = x
+            self.y = y
+            self.nextMoves = nextMoves
     
     def __init__(self, startX, startY):
         self.knightMoves = [[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]]
@@ -28,20 +33,38 @@ class ChessBoardMoves:
     def dfsKnightTour(self,currentX, currentY):
         depth = self.board[currentX][currentY]
         if depth == 64:
-            print(self.board)
+            self.printBoard()
             self.solutionFound = True
             return
         elif not self.solutionFound:
-            for i in range(len(self.knightMoves)):
-                newx = currentX + self.knightMoves[i][0]
-                newy = currentY + self.knightMoves[i][1]
-                if newx in range(self.columns) and newy in range(self.rows) and self.board[newx][newy] == -1:
-                    self.board[newx][newy] = depth + 1
-                    self.dfsKnightTour(newx, newy)
+            movesByPriority = self.getMovesSortedByFewestNextPossibleMoves(currentX, currentY)
+            if movesByPriority != None:
+                for i in range(len(movesByPriority)):
+                    nextMove = movesByPriority[i]
+                    self.board[nextMove.x][nextMove.y] = depth + 1
+                    self.dfsKnightTour(nextMove.x, nextMove.y)
                     if not self.solutionFound:
-                        self.board[newx][newy] = -1
+                        self.board[nextMove.x][nextMove.y] = -1
+
+    def getMovesSortedByFewestNextPossibleMoves(self, x, y):
+        movesByPriority = []
+        for i in range(len(self.knightMoves)):
+            newx = x + self.knightMoves[i][0]
+            newy = y + self.knightMoves[i][1]
+            possibleMoves = 0
+            if newx in range(self.columns) and newy in range(self.rows) and self.board[newx][newy] == -1:
+                for j in range(len(self.knightMoves)):
+                    nextX = newx + self.knightMoves[j][0]
+                    nextY = newy + self.knightMoves[j][1]
+                    if nextX in range(self.columns) and nextY in range(self.rows) and self.board[nextX][nextY] == -1:    
+                        possibleMoves += 1
+                movesByPriority.append(self.MoveWithPriority(newx, newy, possibleMoves))
+        movesByPriority.sort(key=lambda p: p.nextMoves)
+        return movesByPriority
+
     def printBoard(self):
         print(self.board)
 
-movements = ChessBoardMoves(0,4)
+
+movements = ChessBoardMoves(4,4)
 movements.knightTour()
